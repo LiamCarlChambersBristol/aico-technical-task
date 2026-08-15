@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { DevicesRepo } from "../../src/repo/devicesRepo";
+import { DevicesRepo } from "../../src/repo/deviceRepo";
 import { devices } from "../../src/db/schema";
 import { db } from "../../src/db/client";
 

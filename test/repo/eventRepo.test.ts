@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { EventsRepo } from "../../src/repo/eventsRepo";
+import { EventRepo } from "../../src/repo/eventsRepo";
 import { deviceEvents } from "../../src/db/schema";
 import { db } from "../../src/db/client";
 
@@ -13,8 +13,8 @@ vi.mock("../../src/db/client", () => {
   };
 });
 
-describe("EventsRepo", () => {
-  const repo = new EventsRepo(db as any);
+describe("EventRepo", () => {
+  const repo = new EventRepo(db as any);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -53,12 +53,14 @@ describe("EventsRepo", () => {
     (db.select as any).mockReturnValue({
       from: vi.fn().mockReturnValue({
         where: vi.fn().mockReturnValue({
-          orderBy: vi.fn().mockResolvedValue(mockEvents),
-        }),
+          orderBy: vi.fn().mockReturnValue({
+          limit: vi.fn().mockResolvedValue(mockEvents),
+          }),
+        })
       }),
     });
 
-    const result = await repo.getEvents("device-1");
+    const result = await repo.getEvents("device-1", 10);
 
     expect(result).toEqual(mockEvents);
   });

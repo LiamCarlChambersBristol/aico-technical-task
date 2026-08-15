@@ -2,7 +2,7 @@ import { db } from "../db/client";
 import { deviceEvents } from "../db/schema";
 import { eq, desc, gt, and } from "drizzle-orm";
 
-export class EventsRepo {
+export class EventRepo {
   constructor(private readonly dbClient = db) {}
 
   async appendEvent(deviceId: string, event: {
@@ -23,12 +23,13 @@ export class EventsRepo {
     return inserted;
   }
 
-  async getEvents(deviceId: string) {
+  async getEvents(deviceId: string, amount: number) {
     return await this.dbClient
       .select()
       .from(deviceEvents)
       .where(eq(deviceEvents.deviceId, deviceId))
-      .orderBy(deviceEvents.occurredAt);
+      .orderBy(deviceEvents.occurredAt)
+      .limit(amount);
   }
 
   async getEventsSince(deviceId: string, since: Date) {

@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 export class DevicesRepo {
   constructor(private readonly dbClient = db) {}
 
+  //TODO: create deviceType table and "add foreign key constraint" to devices table
   async createDevice(data: {
     name: string;
     deviceType: string;

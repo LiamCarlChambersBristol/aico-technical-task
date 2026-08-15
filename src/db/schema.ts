@@ -34,7 +34,7 @@ export const deviceEvents = pgTable(
   })
 );
 
-// Device State Projection (CQRS read model)
+// Device State Projection
 export const deviceStateProjection = pgTable(
   "device_state_projection",
   {
