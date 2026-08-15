@@ -1,14 +1,16 @@
 import { db } from "../db/client";
 import { deviceEvents } from "../db/schema";
-import { eq, desc, gt } from "drizzle-orm";
+import { eq, desc, gt, and } from "drizzle-orm";
 
 export class EventsRepo {
-  static async appendEvent(deviceId: string, event: {
+  constructor(private readonly dbClient = db) {}
+
+  async appendEvent(deviceId: string, event: {
     eventType: string;
     payload: any;
     occurredAt?: Date;
   }) {
-    const [inserted] = await db
+    const [inserted] = await this.dbClient
       .insert(deviceEvents)
       .values({
         deviceId,
@@ -21,25 +23,24 @@ export class EventsRepo {
     return inserted;
   }
 
-  static async getEvents(deviceId: string) {
-    return await db
+  async getEvents(deviceId: string) {
+    return await this.dbClient
       .select()
       .from(deviceEvents)
       .where(eq(deviceEvents.deviceId, deviceId))
       .orderBy(deviceEvents.occurredAt);
   }
 
-  static async getEventsSince(deviceId: string, since: Date) {
-    return await db
+  async getEventsSince(deviceId: string, since: Date) {
+    return await this.dbClient
       .select()
       .from(deviceEvents)
-      .where(eq(deviceEvents.deviceId, deviceId) 
-        && gt(deviceEvents.occurredAt, since))
+      .where(and(eq(deviceEvents.deviceId, deviceId), gt(deviceEvents.occurredAt, since)))
       .orderBy(deviceEvents.occurredAt);
   }
 
-  static async getLatestEvent(deviceId: string) {
-    const [latest] = await db
+  async getLatestEvent(deviceId: string) {
+    const [latest] = await this.dbClient
       .select()
       .from(deviceEvents)
       .where(eq(deviceEvents.deviceId, deviceId))
@@ -50,7 +51,7 @@ export class EventsRepo {
   }
 
   //TODO: Add access control to ensure only authorized users can delete events
-  static async deleteEvents(deviceId: string) {
-    await db.delete(deviceEvents).where(eq(deviceEvents.deviceId, deviceId));
+  async deleteEvents(deviceId: string) {
+    await this.dbClient.delete(deviceEvents).where(eq(deviceEvents.deviceId, deviceId));
   }
 }

@@ -15,6 +15,8 @@ vi.mock("../../src/db/client", () => {
 });
 
 describe("DevicesRepo", () => {
+  const repo = new DevicesRepo(db as any);
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -34,7 +36,7 @@ describe("DevicesRepo", () => {
       }),
     });
 
-    const result = await DevicesRepo.createDevice({
+    const result = await repo.createDevice({
       name: "Living Room Light",
       deviceType: "light",
     });
@@ -58,7 +60,7 @@ describe("DevicesRepo", () => {
       }),
     });
 
-    const result = await DevicesRepo.getDevice("uuid-1");
+    const result = await repo.getDevice("uuid-1");
 
     expect(db.select).toHaveBeenCalled();
     expect(result).toEqual(mockDevice);
@@ -71,7 +73,7 @@ describe("DevicesRepo", () => {
       }),
     });
 
-    const result = await DevicesRepo.getDevice("missing-id");
+    const result = await repo.getDevice("missing-id");
 
     expect(result).toBeNull();
   });
@@ -86,7 +88,7 @@ describe("DevicesRepo", () => {
       from: vi.fn().mockResolvedValue(mockDevices),
     });
 
-    const result = await DevicesRepo.listDevices();
+    const result = await repo.listDevices();
 
     expect(result).toEqual(mockDevices);
   });
@@ -107,7 +109,7 @@ describe("DevicesRepo", () => {
       }),
     });
 
-    const result = await DevicesRepo.updateDevice("uuid-1", {
+    const result = await repo.updateDevice("uuid-1", {
       name: "New Name",
     });
 
@@ -119,7 +121,7 @@ describe("DevicesRepo", () => {
       where: vi.fn().mockResolvedValue(undefined),
     });
 
-    await DevicesRepo.deleteDevice("uuid-1");
+    await repo.deleteDevice("uuid-1");
 
     expect(db.delete).toHaveBeenCalledWith(devices);
   });

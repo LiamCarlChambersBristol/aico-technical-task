@@ -3,8 +3,10 @@ import { deviceStateProjection } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 export class ProjectionsRepo {
-  static async upsertProjection(deviceId: string, state: any) {
-    const [updated] = await db
+  constructor(private readonly dbClient = db) {}
+
+  async upsertProjection(deviceId: string, state: any) {
+    const [updated] = await this.dbClient
       .insert(deviceStateProjection)
       .values({
         deviceId,
@@ -23,8 +25,8 @@ export class ProjectionsRepo {
     return updated;
   }
 
-  static async getProjection(deviceId: string) {
-    const [projection] = await db
+  async getProjection(deviceId: string) {
+    const [projection] = await this.dbClient
       .select()
       .from(deviceStateProjection)
       .where(eq(deviceStateProjection.deviceId, deviceId));
@@ -32,8 +34,8 @@ export class ProjectionsRepo {
     return projection ?? null;
   }
 
-  static async deleteProjection(deviceId: string) {
-    await db
+  async deleteProjection(deviceId: string) {
+    await this.dbClient
       .delete(deviceStateProjection)
       .where(eq(deviceStateProjection.deviceId, deviceId));
   }

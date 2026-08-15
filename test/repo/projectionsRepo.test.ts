@@ -14,6 +14,8 @@ vi.mock("../../src/db/client", () => {
 });
 
 describe("ProjectionsRepo", () => {
+  const repo = new ProjectionsRepo(db as any);
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -35,7 +37,7 @@ describe("ProjectionsRepo", () => {
       }),
     });
 
-    const result = await ProjectionsRepo.upsertProjection("device-1", {
+    const result = await repo.upsertProjection("device-1", {
       isOn: true,
       brightness: 80,
     });
@@ -57,7 +59,7 @@ describe("ProjectionsRepo", () => {
       }),
     });
 
-    const result = await ProjectionsRepo.getProjection("device-1");
+    const result = await repo.getProjection("device-1");
 
     expect(result).toEqual(mockProjection);
   });
@@ -69,7 +71,7 @@ describe("ProjectionsRepo", () => {
       }),
     });
 
-    const result = await ProjectionsRepo.getProjection("missing-device");
+    const result = await repo.getProjection("missing-device");
 
     expect(result).toBeNull();
   });
@@ -79,7 +81,7 @@ describe("ProjectionsRepo", () => {
       where: vi.fn().mockResolvedValue(undefined),
     });
 
-    await ProjectionsRepo.deleteProjection("device-1");
+    await repo.deleteProjection("device-1");
 
     expect(db.delete).toHaveBeenCalledWith(deviceStateProjection);
   });

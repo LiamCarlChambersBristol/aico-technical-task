@@ -14,6 +14,8 @@ vi.mock("../../src/db/client", () => {
 });
 
 describe("EventsRepo", () => {
+  const repo = new EventsRepo(db as any);
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -33,7 +35,7 @@ describe("EventsRepo", () => {
       }),
     });
 
-    const result = await EventsRepo.appendEvent("device-1", {
+    const result = await repo.appendEvent("device-1", {
       eventType: "LightTurnedOn",
       payload: {},
     });
@@ -56,7 +58,7 @@ describe("EventsRepo", () => {
       }),
     });
 
-    const result = await EventsRepo.getEvents("device-1");
+    const result = await repo.getEvents("device-1");
 
     expect(result).toEqual(mockEvents);
   });
@@ -75,7 +77,7 @@ describe("EventsRepo", () => {
       }),
     });
 
-    const result = await EventsRepo.getEventsSince("device-1", since);
+    const result = await repo.getEventsSince("device-1", since);
 
     expect(result).toEqual(mockEvents);
   });
@@ -97,7 +99,7 @@ describe("EventsRepo", () => {
       }),
     });
 
-    const result = await EventsRepo.getLatestEvent("device-1");
+    const result = await repo.getLatestEvent("device-1");
 
     expect(result).toEqual(latest);
   });
@@ -113,7 +115,7 @@ describe("EventsRepo", () => {
       }),
     });
 
-    const result = await EventsRepo.getLatestEvent("device-1");
+    const result = await repo.getLatestEvent("device-1");
 
     expect(result).toBeNull();
   });
@@ -123,7 +125,7 @@ describe("EventsRepo", () => {
       where: vi.fn().mockResolvedValue(undefined),
     });
 
-    await EventsRepo.deleteEvents("device-1");
+    await repo.deleteEvents("device-1");
 
     expect(db.delete).toHaveBeenCalledWith(deviceEvents);
   });

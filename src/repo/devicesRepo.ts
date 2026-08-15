@@ -3,11 +3,13 @@ import { devices } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 export class DevicesRepo {
-  static async createDevice(data: {
+  constructor(private readonly dbClient = db) {}
+
+  async createDevice(data: {
     name: string;
     deviceType: string;
   }) {
-    const [device] = await db
+    const [device] = await this.dbClient
       .insert(devices)
       .values({
         name: data.name,
@@ -18,8 +20,8 @@ export class DevicesRepo {
     return device;
   }
 
-  static async getDevice(deviceId: string) {
-    const [device] = await db
+  async getDevice(deviceId: string) {
+    const [device] = await this.dbClient
       .select()
       .from(devices)
       .where(eq(devices.id, deviceId));
@@ -27,15 +29,15 @@ export class DevicesRepo {
     return device ?? null;
   }
 
-  static async listDevices() {
-    return await db.select().from(devices);
+  async listDevices() {
+    return await this.dbClient.select().from(devices);
   }
 
-  static async updateDevice(deviceId: string, updates: {
+  async updateDevice(deviceId: string, updates: {
     name?: string;
     deviceType?: string;
   }) {
-    const [updated] = await db
+    const [updated] = await this.dbClient
       .update(devices)
       .set({
         ...updates,
@@ -47,7 +49,7 @@ export class DevicesRepo {
     return updated ?? null;
   }
 
-  static async deleteDevice(deviceId: string) {
-    await db.delete(devices).where(eq(devices.id, deviceId));
+  async deleteDevice(deviceId: string) {
+    await this.dbClient.delete(devices).where(eq(devices.id, deviceId));
   }
 }
