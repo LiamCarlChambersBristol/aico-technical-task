@@ -39,10 +39,11 @@ async function bootstrap() {
     3000
   );
 
-  console.log("✓ Server listening on http://localhost:3000");
-  console.log("  - POST /devices, GET /devices, GET /devices/:id, PUT /devices/:id, DELETE /devices/:id");
-  console.log("  - POST /events, GET /events, GET /events/:id, DELETE /events/:id");
-  console.log("  - POST /projections, GET /projections, GET /projections/:id, DELETE /projections/:id");
+  console.log("✅ Server running on http://localhost:3000\n");
+  console.log("📚 Available endpoints:");
+  console.log("   Devices:     POST/GET /devices, GET/PUT/DELETE /devices/:id");
+  console.log("   Events:      POST/GET /events, GET /events/:id, DELETE /events/:id");
+  console.log("   Projections: POST/GET /projections, GET /projections/:id, DELETE /projections/:id");
 
   return server;
 }

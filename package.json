@@ -1,12 +1,22 @@
 {
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "sample-data": "tsx src/sampleData.ts",
+    "dev": "tsx src/main.ts",
+    "build": "tsc",
+    "test": "vitest run"
+  },
   "dependencies": {
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
     "@types/pg": "^8.21.0",
+    "@types/uuid": "^9.0.0",
+    "tsx": "^4.7.0",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   }
