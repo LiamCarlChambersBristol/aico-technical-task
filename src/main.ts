@@ -9,8 +9,12 @@ import { ProjectionService } from "./service/projectionService";
 import { DeviceRepo } from "./repo/deviceRepo";
 import { EventRepo } from "./repo/eventsRepo";
 import { injectSampleData } from "./sampleData";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { ensureDatabase } from "./db/ensureDatabase";
 
 async function bootstrap() {
+  await ensureDatabase();
+  await migrate(db, { migrationsFolder: "./drizzle" });
   await injectSampleData();
 
   // Initialize repositories

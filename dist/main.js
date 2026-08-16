@@ -11,7 +11,11 @@ const projectionService_1 = require("./service/projectionService");
 const deviceRepo_1 = require("./repo/deviceRepo");
 const eventsRepo_1 = require("./repo/eventsRepo");
 const sampleData_1 = require("./sampleData");
+const migrator_1 = require("drizzle-orm/node-postgres/migrator");
+const ensureDatabase_1 = require("./db/ensureDatabase");
 async function bootstrap() {
+    await (0, ensureDatabase_1.ensureDatabase)();
+    await (0, migrator_1.migrate)(client_1.db, { migrationsFolder: "./drizzle" });
     await (0, sampleData_1.injectSampleData)();
     // Initialize repositories
     const deviceRepo = new deviceRepo_1.DeviceRepo(client_1.db);
