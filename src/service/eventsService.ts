@@ -4,7 +4,7 @@ import { DeviceEvent } from "../models/deviceEvent";
 export class EventService {
     constructor(private eventsRepo: EventRepo) {}
 
-    async addEvent(event: DeviceEvent): Promise<String> {
+    async addEvent(event: DeviceEvent): Promise<string> {
         const device = await this.eventsRepo.appendEvent(event.deviceId, {
             eventType: event.eventType,
             payload: event.payload,

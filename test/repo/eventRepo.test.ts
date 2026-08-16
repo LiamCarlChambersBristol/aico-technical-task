@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EventRepo } from "../../src/repo/eventsRepo";
 import { deviceEvents } from "../../src/db/schema";
-import { db } from "../../src/db/client";
+import { createMockDbClient } from "../helpers/mockDb";
 
 vi.mock("../../src/db/client", () => {
   return {
@@ -14,8 +14,6 @@ vi.mock("../../src/db/client", () => {
 });
 
 describe("EventRepo", () => {
-  const repo = new EventRepo(db as any);
-
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -29,18 +27,20 @@ describe("EventRepo", () => {
       occurredAt: new Date(),
     };
 
-    (db.insert as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.insert as any).mockReturnValue({
       values: vi.fn().mockReturnValue({
         returning: vi.fn().mockResolvedValue([mockEvent]),
       }),
     });
 
+    const repo = new EventRepo(mockDb as any);
     const result = await repo.appendEvent("device-1", {
       eventType: "LightTurnedOn",
       payload: {},
     });
 
-    expect(db.insert).toHaveBeenCalledWith(deviceEvents);
+    expect(mockDb.insert).toHaveBeenCalledWith(deviceEvents);
     expect(result).toEqual(mockEvent);
   });
 
@@ -50,16 +50,18 @@ describe("EventRepo", () => {
       { id: "event-2", deviceId: "device-1", eventType: "BrightnessChanged" },
     ];
 
-    (db.select as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.select as any).mockReturnValue({
       from: vi.fn().mockReturnValue({
         where: vi.fn().mockReturnValue({
           orderBy: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue(mockEvents),
+            limit: vi.fn().mockResolvedValue(mockEvents),
           }),
         })
       }),
     });
 
+    const repo = new EventRepo(mockDb as any);
     const result = await repo.getEvents("device-1", 10);
 
     expect(result).toEqual(mockEvents);
@@ -71,7 +73,8 @@ describe("EventRepo", () => {
       { id: "event-2", deviceId: "device-1", eventType: "BrightnessChanged" },
     ];
 
-    (db.select as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.select as any).mockReturnValue({
       from: vi.fn().mockReturnValue({
         where: vi.fn().mockReturnValue({
           orderBy: vi.fn().mockResolvedValue(mockEvents),
@@ -79,6 +82,7 @@ describe("EventRepo", () => {
       }),
     });
 
+    const repo = new EventRepo(mockDb as any);
     const result = await repo.getEventsSince("device-1", since);
 
     expect(result).toEqual(mockEvents);
@@ -91,7 +95,8 @@ describe("EventRepo", () => {
       eventType: "BrightnessChanged",
     };
 
-    (db.select as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.select as any).mockReturnValue({
       from: vi.fn().mockReturnValue({
         where: vi.fn().mockReturnValue({
           orderBy: vi.fn().mockReturnValue({
@@ -101,13 +106,15 @@ describe("EventRepo", () => {
       }),
     });
 
+    const repo = new EventRepo(mockDb as any);
     const result = await repo.getLatestEvent("device-1");
 
     expect(result).toEqual(latest);
   });
 
   it("returns null when no latest event", async () => {
-    (db.select as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.select as any).mockReturnValue({
       from: vi.fn().mockReturnValue({
         where: vi.fn().mockReturnValue({
           orderBy: vi.fn().mockReturnValue({
@@ -117,18 +124,21 @@ describe("EventRepo", () => {
       }),
     });
 
+    const repo = new EventRepo(mockDb as any);
     const result = await repo.getLatestEvent("device-1");
 
     expect(result).toBeNull();
   });
 
   it("deletes events for a device", async () => {
-    (db.delete as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.delete as any).mockReturnValue({
       where: vi.fn().mockResolvedValue(undefined),
     });
 
+    const repo = new EventRepo(mockDb as any);
     await repo.deleteEvents("device-1");
 
-    expect(db.delete).toHaveBeenCalledWith(deviceEvents);
+    expect(mockDb.delete).toHaveBeenCalledWith(deviceEvents);
   });
 });

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { DevicesRepo } from "../../src/repo/deviceRepo";
+import { DeviceRepo } from "../../src/repo/deviceRepo";
 import { devices } from "../../src/db/schema";
-import { db } from "../../src/db/client";
+import { createMockDbClient } from "../helpers/mockDb";
 
 vi.mock("../../src/db/client", () => {
   return {
@@ -14,9 +14,7 @@ vi.mock("../../src/db/client", () => {
   };
 });
 
-describe("DevicesRepo", () => {
-  const repo = new DevicesRepo(db as any);
-
+describe("DeviceRepo", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -30,18 +28,20 @@ describe("DevicesRepo", () => {
       updatedAt: null,
     };
 
-    (db.insert as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.insert as any).mockReturnValue({
       values: vi.fn().mockReturnValue({
         returning: vi.fn().mockResolvedValue([mockDevice]),
       }),
     });
 
+    const repo = new DeviceRepo(mockDb as any);
     const result = await repo.createDevice({
       name: "Living Room Light",
       deviceType: "light",
     });
 
-    expect(db.insert).toHaveBeenCalledWith(devices);
+    expect(mockDb.insert).toHaveBeenCalledWith(devices);
     expect(result).toEqual(mockDevice);
   });
 
@@ -54,25 +54,29 @@ describe("DevicesRepo", () => {
       updatedAt: null,
     };
 
-    (db.select as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.select as any).mockReturnValue({
       from: vi.fn().mockReturnValue({
         where: vi.fn().mockResolvedValue([mockDevice]),
       }),
     });
 
+    const repo = new DeviceRepo(mockDb as any);
     const result = await repo.getDevice("uuid-1");
 
-    expect(db.select).toHaveBeenCalled();
+    expect(mockDb.select).toHaveBeenCalled();
     expect(result).toEqual(mockDevice);
   });
 
   it("returns null when device not found", async () => {
-    (db.select as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.select as any).mockReturnValue({
       from: vi.fn().mockReturnValue({
         where: vi.fn().mockResolvedValue([]),
       }),
     });
 
+    const repo = new DeviceRepo(mockDb as any);
     const result = await repo.getDevice("missing-id");
 
     expect(result).toBeNull();
@@ -84,10 +88,12 @@ describe("DevicesRepo", () => {
       { id: "uuid-2", name: "B", deviceType: "sensor" },
     ];
 
-    (db.select as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.select as any).mockReturnValue({
       from: vi.fn().mockResolvedValue(mockDevices),
     });
 
+    const repo = new DeviceRepo(mockDb as any);
     const result = await repo.listDevices();
 
     expect(result).toEqual(mockDevices);
@@ -101,7 +107,8 @@ describe("DevicesRepo", () => {
       updatedAt: new Date(),
     };
 
-    (db.update as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.update as any).mockReturnValue({
       set: vi.fn().mockReturnValue({
         where: vi.fn().mockReturnValue({
           returning: vi.fn().mockResolvedValue([updated]),
@@ -109,6 +116,7 @@ describe("DevicesRepo", () => {
       }),
     });
 
+    const repo = new DeviceRepo(mockDb as any);
     const result = await repo.updateDevice("uuid-1", {
       name: "New Name",
     });
@@ -117,12 +125,14 @@ describe("DevicesRepo", () => {
   });
 
   it("deletes a device", async () => {
-    (db.delete as any).mockReturnValue({
+    const mockDb = createMockDbClient();
+    (mockDb.delete as any).mockReturnValue({
       where: vi.fn().mockResolvedValue(undefined),
     });
 
+    const repo = new DeviceRepo(mockDb as any);
     await repo.deleteDevice("uuid-1");
 
-    expect(db.delete).toHaveBeenCalledWith(devices);
+    expect(mockDb.delete).toHaveBeenCalledWith(devices);
   });
 });

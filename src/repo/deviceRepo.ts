@@ -2,7 +2,7 @@ import { db } from "../db/client";
 import { devices } from "../db/schema";
 import { eq } from "drizzle-orm";
 
-export class DevicesRepo {
+export class DeviceRepo {
   constructor(private readonly dbClient = db) {}
 
   //TODO: create deviceType table and "add foreign key constraint" to devices table
