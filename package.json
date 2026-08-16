@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "tsx src/main.ts",
+    "start": "docker compose up -d db && tsx src/main.ts",
     "sample-data": "tsx src/sampleData.ts",
     "dev": "tsx src/main.ts",
     "build": "tsc",

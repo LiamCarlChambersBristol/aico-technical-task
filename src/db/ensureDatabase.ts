@@ -4,6 +4,23 @@ function quoteIdentifier(identifier: string) {
   return `"${identifier.replace(/"/g, '""')}"`;
 }
 
+async function connectWithRetry(client: Client) {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < 15; attempt += 1) {
+    try {
+      await client.connect();
+      return;
+    } catch (error) {
+      lastError = error;
+      const delay = Math.min(100 * 2 ** attempt, 2000);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+
+  throw lastError;
+}
+
 export async function ensureDatabase() {
   const databaseUrl = process.env.DATABASE_URL;
 
@@ -12,7 +29,7 @@ export async function ensureDatabase() {
   }
 
   const targetUrl = new URL(databaseUrl);
-    const databaseName = decodeURIComponent(targetUrl.pathname.slice(1)); // Removed misplaced environment assignment
+  const databaseName = decodeURIComponent(targetUrl.pathname.slice(1));
 
   if (!databaseName) {
     throw new Error("DATABASE_URL does not specify a database name");
@@ -22,7 +39,7 @@ export async function ensureDatabase() {
   const adminClient = new Client({ connectionString: targetUrl.toString() });
 
   try {
-    await adminClient.connect();
+    await connectWithRetry(adminClient);
     const result = await adminClient.query(
       "SELECT 1 FROM pg_database WHERE datname = $1",
       [databaseName]

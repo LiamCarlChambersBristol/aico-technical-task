@@ -50,30 +50,43 @@ export function createControllerRoutes(controller: RouteController) {
     try {
       const itemPath = `${basePath}/`;
 
+      if (controller.type === "device") {
+        if (req.method === "GET" && url.pathname === `${basePath}/listDevices`) {
+          return sendJson(res, 200, await controller.listDevices());
+        }
+
+        if (req.method === "GET" && url.pathname.startsWith(`${basePath}/getDevice/`)) {
+          const deviceId = url.pathname.slice(`${basePath}/getDevice/`.length);
+          return sendJson(res, 200, await controller.getDevice(deviceId));
+        }
+
+        if (req.method === "POST" && url.pathname === `${basePath}/createDevice`) {
+          const body = await readJsonBody(req);
+          return sendJson(res, 201, { id: await controller.createDevice(body) });
+        }
+
+        if (req.method === "PUT" && url.pathname.startsWith(`${basePath}/updateDevice/`)) {
+          const deviceId = url.pathname.slice(`${basePath}/updateDevice/`.length);
+          const body = await readJsonBody(req);
+          return sendJson(res, 200, { id: await controller.updateDevice(deviceId, body) });
+        }
+
+        if (req.method === "DELETE" && url.pathname.startsWith(`${basePath}/deleteDevice/`)) {
+          const deviceId = url.pathname.slice(`${basePath}/deleteDevice/`.length);
+          await controller.deleteDevice(deviceId);
+          return sendJson(res, 204, null);
+        }
+      }
+
       if (controller.type === "event") {
-        if (req.method === "POST" && url.pathname === basePath) {
+        if (req.method === "POST" && url.pathname === `${basePath}/addEvent`) {
           const body = await readJsonBody(req);
           const eventId = await controller.addEvent(body);
           return sendJson(res, 201, { id: eventId });
         }
 
-        if (req.method === "GET" && url.pathname.startsWith(itemPath)) {
-          const pathParts = url.pathname.slice(itemPath.length).split("/");
-          const deviceId = pathParts[0];
-
-          if (pathParts[1] === "latest") {
-            const event = await controller.getLatestEvent(deviceId);
-            return sendJson(res, 200, event);
-          }
-
-          if (pathParts[1] === "since" && pathParts[2]) {
-            const events = await controller.getEventsSince(
-              deviceId,
-              new Date(pathParts[2])
-            );
-            return sendJson(res, 200, events);
-          }
-
+        if (req.method === "GET" && url.pathname.startsWith(`${basePath}/getEvents/`)) {
+          const deviceId = url.pathname.slice(`${basePath}/getEvents/`.length);
           const amount = url.searchParams.get("amount");
           const events = await controller.getEvents(
             deviceId,
@@ -82,8 +95,19 @@ export function createControllerRoutes(controller: RouteController) {
           return sendJson(res, 200, events);
         }
 
-        if (req.method === "DELETE" && url.pathname.startsWith(itemPath)) {
-          const deviceId = url.pathname.slice(itemPath.length);
+        if (req.method === "GET" && url.pathname.startsWith(`${basePath}/getEventsSince/`)) {
+          const pathParts = url.pathname.slice(`${basePath}/getEventsSince/`.length).split("/");
+          const events = await controller.getEventsSince(pathParts[0], new Date(pathParts[1]));
+          return sendJson(res, 200, events);
+        }
+
+        if (req.method === "GET" && url.pathname.startsWith(`${basePath}/getLatestEvent/`)) {
+          const deviceId = url.pathname.slice(`${basePath}/getLatestEvent/`.length);
+          return sendJson(res, 200, await controller.getLatestEvent(deviceId));
+        }
+
+        if (req.method === "DELETE" && url.pathname.startsWith(`${basePath}/deleteEvents/`)) {
+          const deviceId = url.pathname.slice(`${basePath}/deleteEvents/`.length);
           await controller.deleteEvents(deviceId);
           return sendJson(res, 204, null);
         }
@@ -92,48 +116,11 @@ export function createControllerRoutes(controller: RouteController) {
       if (
         controller.type === "projection" &&
         req.method === "POST" &&
-        url.pathname.startsWith(itemPath)
+        url.pathname.startsWith(`${basePath}/rebuildProjection/`)
       ) {
-        const deviceId = url.pathname.slice(itemPath.length);
+        const deviceId = url.pathname.slice(`${basePath}/rebuildProjection/`.length);
         const projection = await controller.rebuildProjection(deviceId);
         return sendJson(res, 200, projection);
-      }
-
-      if (req.method === "GET" && url.pathname === basePath) {
-        const listFn = controller.listDevices ?? controller.list ?? controller.getAll;
-        const result = listFn ? await listFn() : null;
-        return sendJson(res, 200, result);
-      }
-
-      if (req.method === "GET" && url.pathname.startsWith(itemPath)) {
-        const id = url.pathname.replace(itemPath, "") || "";
-        const getFn = controller.getDevice ?? controller.getById ?? controller.get;
-        const result = getFn ? await getFn(id) : null;
-        return sendJson(res, 200, result);
-      }
-
-      if (req.method === "POST" && url.pathname === basePath) {
-        const body = await readJsonBody(req);
-        const createFn = controller.createDevice ?? controller.create;
-        const created = createFn ? await createFn(body) : null;
-        return sendJson(res, 201, created);
-      }
-
-      if (req.method === "PUT" && url.pathname.startsWith(itemPath)) {
-        const id = url.pathname.replace(itemPath, "") || "";
-        const body = await readJsonBody(req);
-        const updateFn = controller.updateDevice ?? controller.update;
-        const updated = updateFn ? await updateFn(id, body) : null;
-        return sendJson(res, 200, updated);
-      }
-
-      if (req.method === "DELETE" && url.pathname.startsWith(itemPath)) {
-        const id = url.pathname.replace(itemPath, "") || "";
-        const deleteFn = controller.deleteDevice ?? controller.delete;
-        if (deleteFn) {
-          await deleteFn(id);
-        }
-        return sendJson(res, 204, null);
       }
 
       return sendJson(res, 404, { error: "Not found" });

@@ -38,9 +38,9 @@ async function bootstrap() {
     const server = await (0, routes_1.createMultiControllerServer)([deviceController, eventController, projectionController], 3000);
     console.log("✅ Server running on http://localhost:3000\n");
     console.log("📚 Available endpoints:");
-    console.log("   Devices:     POST/GET /devices, GET/PUT/DELETE /devices/:id");
-    console.log("   Events:      POST/GET /events, GET /events/:id, DELETE /events/:id");
-    console.log("   Projections: POST/GET /projections, GET /projections/:id, DELETE /projections/:id");
+    console.log("   Devices:     /devices/listDevices, /devices/getDevice/:id, /devices/createDevice, /devices/updateDevice/:id, /devices/deleteDevice/:id");
+    console.log("   Events:      /events/addEvent, /events/getEvents/:deviceId, /events/getEventsSince/:deviceId/:since, /events/getLatestEvent/:deviceId, /events/deleteEvents/:deviceId");
+    console.log("   Projections: /projections/rebuildProjection/:deviceId");
     return server;
 }
 bootstrap().catch((error) => {
