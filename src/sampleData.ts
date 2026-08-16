@@ -8,7 +8,7 @@ import { DeviceEvent } from "./models/deviceEvent";
 import { Device } from "./models/device";
 import { v4 as uuidv4 } from "uuid";
 
-async function injectSampleData() {
+export async function injectSampleData() {
   // Clear existing data
   console.log("🧹 Clearing existing data...");
   await db.delete(deviceStateProjection);
@@ -177,10 +177,11 @@ async function injectSampleData() {
   );
 
   console.log("\n✨ Seeding complete!");
-  process.exit(0);
 }
 
-injectSampleData().catch((err) => {
-  console.error("❌ Sample data injection failed:", err);
-  process.exit(1);
-});
+if (require.main === module) {
+  injectSampleData().catch((err) => {
+    console.error("❌ Sample data injection failed:", err);
+    process.exit(1);
+  });
+}

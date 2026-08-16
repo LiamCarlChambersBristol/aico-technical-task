@@ -50,6 +50,55 @@ export function createControllerRoutes(controller: RouteController) {
     try {
       const itemPath = `${basePath}/`;
 
+      if (controller.type === "event") {
+        if (req.method === "POST" && url.pathname === basePath) {
+          const body = await readJsonBody(req);
+          const eventId = await controller.addEvent(body);
+          return sendJson(res, 201, { id: eventId });
+        }
+
+        if (req.method === "GET" && url.pathname.startsWith(itemPath)) {
+          const pathParts = url.pathname.slice(itemPath.length).split("/");
+          const deviceId = pathParts[0];
+
+          if (pathParts[1] === "latest") {
+            const event = await controller.getLatestEvent(deviceId);
+            return sendJson(res, 200, event);
+          }
+
+          if (pathParts[1] === "since" && pathParts[2]) {
+            const events = await controller.getEventsSince(
+              deviceId,
+              new Date(pathParts[2])
+            );
+            return sendJson(res, 200, events);
+          }
+
+          const amount = url.searchParams.get("amount");
+          const events = await controller.getEvents(
+            deviceId,
+            amount ? parseInt(amount, 10) : undefined
+          );
+          return sendJson(res, 200, events);
+        }
+
+        if (req.method === "DELETE" && url.pathname.startsWith(itemPath)) {
+          const deviceId = url.pathname.slice(itemPath.length);
+          await controller.deleteEvents(deviceId);
+          return sendJson(res, 204, null);
+        }
+      }
+
+      if (
+        controller.type === "projection" &&
+        req.method === "POST" &&
+        url.pathname.startsWith(itemPath)
+      ) {
+        const deviceId = url.pathname.slice(itemPath.length);
+        const projection = await controller.rebuildProjection(deviceId);
+        return sendJson(res, 200, projection);
+      }
+
       if (req.method === "GET" && url.pathname === basePath) {
         const listFn = controller.listDevices ?? controller.list ?? controller.getAll;
         const result = listFn ? await listFn() : null;

@@ -8,13 +8,14 @@ import { EventService } from "./service/eventsService";
 import { ProjectionService } from "./service/projectionService";
 import { DeviceRepo } from "./repo/deviceRepo";
 import { EventRepo } from "./repo/eventsRepo";
-import { ProjectionRepo } from "./repo/projectionRepo";
+import { injectSampleData } from "./sampleData";
 
 async function bootstrap() {
+  await injectSampleData();
+
   // Initialize repositories
   const deviceRepo = new DeviceRepo(db);
   const eventRepo = new EventRepo(db);
-  const projectionRepo = new ProjectionRepo(db);
 
   // Initialize services
   const deviceService = new DeviceService(deviceRepo);
