@@ -12,7 +12,7 @@ export async function ensureDatabase() {
   }
 
   const targetUrl = new URL(databaseUrl);
-  const databaseName = decodeURIComponent(targetUrl.pathname.slice(1));
+    const databaseName = decodeURIComponent(targetUrl.pathname.slice(1)); // Removed misplaced environment assignment
 
   if (!databaseName) {
     throw new Error("DATABASE_URL does not specify a database name");

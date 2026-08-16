@@ -1,5 +1,5 @@
 CREATE TABLE "device_events" (
-	"id" uuid PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"device_id" uuid NOT NULL,
 	"event_type" text NOT NULL,
 	"payload" jsonb NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE "device_state_projection" (
 );
 --> statement-breakpoint
 CREATE TABLE "devices" (
-	"id" uuid PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
 	"device_type" text NOT NULL,
 	"created_at" timestamp DEFAULT now(),
