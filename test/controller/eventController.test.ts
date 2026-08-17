@@ -38,22 +38,40 @@ describe("EventController", () => {
 
   it("adds an event", async () => {
     const mockContext = createMockAppContext();
+    (mockContext.deviceService.getDevice as any).mockResolvedValue({ id: "device-1" });
     (mockContext.eventService.addEvent as any).mockResolvedValue("event-1");
 
     const controller = initialiseEventController(mockContext);
     const result = await controller.addEvent(mockEvent);
 
     expect(result).toBe("event-1");
+    expect(mockContext.deviceService.getDevice).toHaveBeenCalledWith("device-1");
     expect(mockContext.eventService.addEvent).toHaveBeenCalledWith(mockEvent);
   });
 
   it("throws APIError when addEvent fails", async () => {
     const mockContext = createMockAppContext();
+    (mockContext.deviceService.getDevice as any).mockResolvedValue({ id: "device-1" });
     (mockContext.eventService.addEvent as any).mockRejectedValue(new Error("DB error"));
 
     const controller = initialiseEventController(mockContext);
 
     await expect(controller.addEvent(mockEvent)).rejects.toThrow(APIError);
+  });
+
+  it("rejects invalid event payloads before saving", async () => {
+    const mockContext = createMockAppContext();
+    const controller = initialiseEventController(mockContext);
+
+    await expect(
+      controller.addEvent({
+        deviceId: "",
+        eventType: "",
+        payload: null,
+      } as any)
+    ).rejects.toThrow(APIError);
+
+    expect(mockContext.eventService.addEvent).not.toHaveBeenCalled();
   });
 
   it("gets events for a device with amount", async () => {

@@ -12,15 +12,42 @@ export interface EventController extends Controller {
   deleteEvents(deviceId: string): Promise<void>;
 }
 
-export function initialiseEventController({ eventService }: AppContext): EventController {
+export function initialiseEventController({ eventService, deviceService }: AppContext): EventController {
   const addEvent = async <TPayload>(data: {
     deviceId: string;
     eventType: string;
     payload: TPayload;
   }): Promise<string> => {
+    if (!data || typeof data !== "object") {
+      throw new APIError("Invalid event payload", { type: "add_event" });
+    }
+
+    const { deviceId, eventType, payload } = data;
+
+    if (typeof deviceId !== "string" || !deviceId.trim()) {
+      throw new APIError("deviceId is required", { type: "add_event" });
+    }
+
+    if (typeof eventType !== "string" || !eventType.trim()) {
+      throw new APIError("eventType is required", { type: "add_event" });
+    }
+
+    if (payload === undefined || payload === null) {
+      throw new APIError("payload is required", { type: "add_event" });
+    }
+
     try {
+      const device = await deviceService.getDevice(deviceId);
+      if (!device) {
+        throw new APIError(`Device with ID ${deviceId} not found`, { type: "add_event" });
+      }
+
       return await eventService.addEvent(data);
     } catch (error) {
+      if (error instanceof APIError) {
+        throw error;
+      }
+
       const errorMessage = "Failed to add event";
       console.error(errorMessage, error);
       throw new APIError(errorMessage, { type: "add_event" });

@@ -2,12 +2,32 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initialiseEventController = initialiseEventController;
 const errors_1 = require("../errors");
-function initialiseEventController({ eventService }) {
+function initialiseEventController({ eventService, deviceService }) {
     const addEvent = async (data) => {
+        if (!data || typeof data !== "object") {
+            throw new errors_1.APIError("Invalid event payload", { type: "add_event" });
+        }
+        const { deviceId, eventType, payload } = data;
+        if (typeof deviceId !== "string" || !deviceId.trim()) {
+            throw new errors_1.APIError("deviceId is required", { type: "add_event" });
+        }
+        if (typeof eventType !== "string" || !eventType.trim()) {
+            throw new errors_1.APIError("eventType is required", { type: "add_event" });
+        }
+        if (payload === undefined || payload === null) {
+            throw new errors_1.APIError("payload is required", { type: "add_event" });
+        }
         try {
+            const device = await deviceService.getDevice(deviceId);
+            if (!device) {
+                throw new errors_1.APIError(`Device with ID ${deviceId} not found`, { type: "add_event" });
+            }
             return await eventService.addEvent(data);
         }
         catch (error) {
+            if (error instanceof errors_1.APIError) {
+                throw error;
+            }
             const errorMessage = "Failed to add event";
             console.error(errorMessage, error);
             throw new errors_1.APIError(errorMessage, { type: "add_event" });
