@@ -3,9 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.initialiseEventController = initialiseEventController;
 const errors_1 = require("../errors");
 function initialiseEventController({ eventService }) {
-    const addEvent = async (event) => {
+    const addEvent = async (data) => {
         try {
-            return await eventService.addEvent(event);
+            return await eventService.addEvent(data);
         }
         catch (error) {
             const errorMessage = "Failed to add event";

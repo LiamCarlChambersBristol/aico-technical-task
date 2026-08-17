@@ -4,11 +4,16 @@ import { DeviceEvent } from "../models/deviceEvent";
 export class EventService {
     constructor(private eventsRepo: EventRepo) {}
 
-    async addEvent(event: DeviceEvent): Promise<string> {
-        const device = await this.eventsRepo.appendEvent(event.deviceId, {
-            eventType: event.eventType,
-            payload: event.payload,
-            occurredAt: event.occurredAt,
+    async addEvent<TPayload>(data: {
+        deviceId: string;
+        eventType: string;
+        payload: TPayload;
+        occurredAt?: Date;
+    }): Promise<string> {
+        const device = await this.eventsRepo.appendEvent(data.deviceId, {
+            eventType: data.eventType,
+            payload: data.payload,
+            occurredAt: data.occurredAt,
         });
         return device.id;
     }

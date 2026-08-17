@@ -5,11 +5,11 @@ class EventService {
     constructor(eventsRepo) {
         this.eventsRepo = eventsRepo;
     }
-    async addEvent(event) {
-        const device = await this.eventsRepo.appendEvent(event.deviceId, {
-            eventType: event.eventType,
-            payload: event.payload,
-            occurredAt: event.occurredAt,
+    async addEvent(data) {
+        const device = await this.eventsRepo.appendEvent(data.deviceId, {
+            eventType: data.eventType,
+            payload: data.payload,
+            occurredAt: data.occurredAt,
         });
         return device.id;
     }

@@ -1,4 +1,14 @@
-import { pgTable, text, uuid, timestamp, jsonb, primaryKey, index } from "drizzle-orm/pg-core";
+import { 
+  index,
+  jsonb,
+  pgTable, 
+  primaryKey,
+  text,
+  timestamp,
+  uuid
+} from "drizzle-orm/pg-core";
+
+import { sql } from "drizzle-orm";
 
 // Devices table
 export const devices = pgTable(
@@ -7,10 +17,11 @@ export const devices = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     name: text("name").notNull(),
     deviceType: text("device_type").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: false })
+    createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
-      .defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: false }),
+      .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`),
+    updatedAt: timestamp("updated_at", { withTimezone: false })
+      .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`),
   }
 );
 
@@ -26,7 +37,7 @@ export const deviceEvents = pgTable(
     payload: jsonb("payload").notNull(),
     occurredAt: timestamp("occurred_at", { withTimezone: false })
       .notNull()
-      .defaultNow(),
+      .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`),
   },
   (table) => ({
     deviceIdx: index("idx_device_events_device_id").on(table.deviceId),
@@ -44,7 +55,7 @@ export const deviceStateProjection = pgTable(
     stateJson: jsonb("state_json").notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: false })
       .notNull()
-      .defaultNow(),
+      .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`),
   },
   (table) => ({
     stateIdx: index("idx_device_state_projection_jsonb").on(table.stateJson),

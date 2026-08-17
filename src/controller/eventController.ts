@@ -13,9 +13,13 @@ export interface EventController extends Controller {
 }
 
 export function initialiseEventController({ eventService }: AppContext): EventController {
-  const addEvent = async (event: DeviceEvent): Promise<string> => {
+  const addEvent = async <TPayload>(data: {
+    deviceId: string;
+    eventType: string;
+    payload: TPayload;
+  }): Promise<string> => {
     try {
-      return await eventService.addEvent(event);
+      return await eventService.addEvent(data);
     } catch (error) {
       const errorMessage = "Failed to add event";
       console.error(errorMessage, error);
