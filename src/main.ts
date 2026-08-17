@@ -15,11 +15,14 @@ import { ensureDatabase } from "./db/ensureDatabase";
 async function bootstrap() {
   await ensureDatabase();
   await migrate(db, { migrationsFolder: "./drizzle" });
-  await injectSampleData();
 
   // Initialize repositories
   const deviceRepo = new DeviceRepo(db);
   const eventRepo = new EventRepo(db);
+
+  if ((await deviceRepo.listDevices()).length === 0) {
+    await injectSampleData();
+  }
 
   // Initialize services
   const deviceService = new DeviceService(deviceRepo);
