@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Controller</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Event Controller</h1>
+        <a class="nav-link" href="./index.html">Back to home</a>
+      </header>
+
+      <div class="row">
+        <div class="card">
+          <h2>Add event</h2>
+          <form id="event-add-form">
+            <label>
+              Device ID
+              <input name="deviceId" placeholder="Enter device ID" />
+            </label>
+            <label>
+              Event Type
+              <input name="eventType" placeholder="TemperatureMeasured" />
+            </label>
+            <label>
+              Payload JSON
+              <textarea name="payloadJson" rows="5" placeholder='{"value": 30.4}'></textarea>
+            </label>
+            <button type="submit">Add event</button>
+          </form>
+          <pre id="event-add-form-response" class="response">{}</pre>
+        </div>
+
+        <div class="card">
+          <h2>Get events</h2>
+          <form id="event-get-form">
+            <label>
+              Device ID
+              <input name="deviceId" placeholder="Enter device ID" />
+            </label>
+            <label>
+              Amount
+              <input name="amount" type="number" min="1" placeholder="Optional" />
+            </label>
+            <button type="submit">Fetch events</button>
+          </form>
+          <pre id="event-get-form-response" class="response">{}</pre>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 24px;">
+        <div class="card">
+          <h2>Get events since</h2>
+          <form id="event-since-form">
+            <label>
+              Device ID
+              <input name="deviceId" placeholder="Enter device ID" />
+            </label>
+            <label>
+              Since timestamp
+              <input name="since" placeholder="2024-01-01T00:00:00.000Z" />
+            </label>
+            <button type="submit">Fetch since</button>
+          </form>
+          <pre id="event-since-form-response" class="response">{}</pre>
+        </div>
+
+        <div class="card">
+          <h2>Latest event</h2>
+          <form id="event-latest-form">
+            <label>
+              Device ID
+              <input name="deviceId" placeholder="Enter device ID" />
+            </label>
+            <button type="submit">Get latest</button>
+          </form>
+          <pre id="event-latest-form-response" class="response">{}</pre>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 24px; max-width: 480px;">
+        <h2>Delete events</h2>
+        <form id="event-delete-form">
+          <label>
+            Device ID
+            <input name="deviceId" placeholder="Enter device ID" />
+          </label>
+          <button type="submit" class="danger">Delete events</button>
+        </form>
+        <pre id="event-delete-form-response" class="response">{}</pre>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

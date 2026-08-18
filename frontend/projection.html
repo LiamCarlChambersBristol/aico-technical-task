@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projection Controller</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Projection Controller</h1>
+        <a class="nav-link" href="./index.html">Back to home</a>
+      </header>
+
+      <div class="card" style="max-width: 640px;">
+        <h2>Rebuild projection</h2>
+        <form id="projection-form">
+          <label>
+            Device ID
+            <input name="deviceId" placeholder="Enter device ID" />
+          </label>
+          <button type="submit">Rebuild projection</button>
+        </form>
+        <pre id="projection-form-response" class="response">{}</pre>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

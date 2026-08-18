@@ -40,6 +40,9 @@ const http = __importStar(require("http"));
 const errors_1 = require("../errors");
 const jsonHeaders = {
     "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 function sendJson(res, statusCode, payload) {
     res.writeHead(statusCode, jsonHeaders);
@@ -70,6 +73,9 @@ function readJsonBody(req) {
 function createControllerRoutes(controller) {
     const basePath = controller.route.replace(/\/$/, "") || "/";
     return async (req, res) => {
+        if (req.method === "OPTIONS") {
+            return sendJson(res, 204, null);
+        }
         const url = new URL(req.url ?? "/", "http://localhost");
         try {
             const itemPath = `${basePath}/`;

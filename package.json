@@ -1,6 +1,8 @@
 {
   "scripts": {
     "start": "docker compose up -d db && tsx src/main.ts",
+    "frontend": "python3 -m http.server 8080 --directory frontend",
+    "start:all": "concurrently \"npm run start\" \"npm run frontend\"",
     "sample-data": "tsx src/sampleData.ts",
     "dev": "tsx src/main.ts",
     "build": "tsc",
@@ -17,6 +19,7 @@
     "@types/node": "^26.2.0",
     "@types/pg": "^8.21.0",
     "@types/uuid": "^9.0.0",
+    "concurrently": "^10.0.5",
     "tsx": "^4.7.0",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"

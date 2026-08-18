@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Device Controller</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Device Controller</h1>
+        <a class="nav-link" href="./index.html">Back to home</a>
+      </header>
+
+      <div class="row">
+        <div class="card">
+          <h2>List devices</h2>
+          <button id="device-list-btn">Get all devices</button>
+          <pre id="device-list-response" class="response">{}</pre>
+        </div>
+
+        <div class="card">
+          <h2>Get device</h2>
+          <form id="device-get-form">
+            <label>
+              Device ID
+              <input name="deviceId" placeholder="Enter device ID" />
+            </label>
+            <button type="submit">Fetch device</button>
+          </form>
+          <pre id="device-get-form-response" class="response">{}</pre>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 24px;">
+        <div class="card">
+          <h2>Create device</h2>
+          <form id="device-create-form">
+            <label>
+              Name
+              <input name="name" placeholder="e.g. Hall Thermostat" />
+            </label>
+            <label>
+              Device Type
+              <input name="deviceType" placeholder="e.g. thermostat" />
+            </label>
+            <button type="submit">Create device</button>
+          </form>
+          <pre id="device-create-form-response" class="response">{}</pre>
+        </div>
+
+        <div class="card">
+          <h2>Update device</h2>
+          <form id="device-update-form">
+            <label>
+              Device ID
+              <input name="deviceId" placeholder="Enter device ID" />
+            </label>
+            <label>
+              Name
+              <input name="name" placeholder="Optional new name" />
+            </label>
+            <label>
+              Device Type
+              <input name="deviceType" placeholder="Optional new type" />
+            </label>
+            <button type="submit">Update device</button>
+          </form>
+          <pre id="device-update-form-response" class="response">{}</pre>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 24px; max-width: 480px;">
+        <h2>Delete device</h2>
+        <form id="device-delete-form">
+          <label>
+            Device ID
+            <input name="deviceId" placeholder="Enter device ID" />
+          </label>
+          <button type="submit" class="danger">Delete device</button>
+        </form>
+        <pre id="device-delete-form-response" class="response">{}</pre>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

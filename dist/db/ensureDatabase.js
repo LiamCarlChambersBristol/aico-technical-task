@@ -5,17 +5,20 @@ const pg_1 = require("pg");
 function quoteIdentifier(identifier) {
     return `"${identifier.replace(/"/g, '""')}"`;
 }
-async function connectWithRetry(client) {
+async function connectWithRetry(createClient) {
     let lastError;
     for (let attempt = 0; attempt < 15; attempt += 1) {
+        const client = createClient();
         try {
             await client.connect();
-            return;
+            return client;
         }
         catch (error) {
             lastError = error;
-            const delay = Math.min(100 * 2 ** attempt, 2000);
-            await new Promise((resolve) => setTimeout(resolve, delay));
+            if (attempt < 14) {
+                const delay = Math.min(100 * 2 ** attempt, 2000);
+                await new Promise((resolve) => setTimeout(resolve, delay));
+            }
         }
     }
     throw lastError;
@@ -31,9 +34,8 @@ async function ensureDatabase() {
         throw new Error("DATABASE_URL does not specify a database name");
     }
     targetUrl.pathname = "/postgres";
-    const adminClient = new pg_1.Client({ connectionString: targetUrl.toString() });
+    const adminClient = await connectWithRetry(() => new pg_1.Client({ connectionString: targetUrl.toString() }));
     try {
-        await connectWithRetry(adminClient);
         const result = await adminClient.query("SELECT 1 FROM pg_database WHERE datname = $1", [databaseName]);
         if (result.rowCount === 0) {
             await adminClient.query(`CREATE DATABASE ${quoteIdentifier(databaseName)}`);

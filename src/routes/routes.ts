@@ -4,6 +4,9 @@ import { APIError } from "../errors";
 
 const jsonHeaders = {
   "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
 type RouteController = Controller & {
@@ -45,6 +48,10 @@ export function createControllerRoutes(controller: RouteController) {
   const basePath = controller.route.replace(/\/$/, "") || "/";
 
   return async (req: http.IncomingMessage, res: http.ServerResponse) => {
+    if (req.method === "OPTIONS") {
+      return sendJson(res, 204, null);
+    }
+
     const url = new URL(req.url ?? "/", "http://localhost");
 
     try {

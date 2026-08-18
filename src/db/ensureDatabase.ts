@@ -4,17 +4,21 @@ function quoteIdentifier(identifier: string) {
   return `"${identifier.replace(/"/g, '""')}"`;
 }
 
-async function connectWithRetry(client: Client) {
+async function connectWithRetry(createClient: () => Client) {
   let lastError: unknown;
 
   for (let attempt = 0; attempt < 15; attempt += 1) {
+    const client = createClient();
+
     try {
       await client.connect();
-      return;
+      return client;
     } catch (error) {
       lastError = error;
-      const delay = Math.min(100 * 2 ** attempt, 2000);
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      if (attempt < 14) {
+        const delay = Math.min(100 * 2 ** attempt, 2000);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
     }
   }
 
@@ -36,10 +40,12 @@ export async function ensureDatabase() {
   }
 
   targetUrl.pathname = "/postgres";
-  const adminClient = new Client({ connectionString: targetUrl.toString() });
+
+  const adminClient = await connectWithRetry(
+    () => new Client({ connectionString: targetUrl.toString() })
+  );
 
   try {
-    await connectWithRetry(adminClient);
     const result = await adminClient.query(
       "SELECT 1 FROM pg_database WHERE datname = $1",
       [databaseName]
